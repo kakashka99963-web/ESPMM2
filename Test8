@@ -1,0 +1,91 @@
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+
+local espEnabled = false
+local espColor = Color3.fromRGB(255, 0, 0)
+
+local function updateESP()
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= localPlayer then
+            local char = player.Character
+            if char then
+                local hl = char:FindFirstChild("WRANNE_ESP")
+                if espEnabled then
+                    if not hl then
+                        hl = Instance.new("Highlight")
+                        hl.Name = "WRANNE_ESP"
+                        hl.FillTransparency = 1
+                        hl.OutlineColor = espColor
+                        hl.Parent = char
+                    end
+                else
+                    if hl then hl:Destroy() end
+                end
+            end
+        end
+    end
+end
+
+Players.PlayerAdded:Connect(function()
+    task.wait(0.5)
+    if espEnabled then updateESP() end
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    local char = player.Character
+    if char then
+        local hl = char:FindFirstChild("WRANNE_ESP")
+        if hl then hl:Destroy() end
+    end
+end)
+
+local Window = Rayfield:CreateWindow({
+    Name = "WRANNE",
+    LoadingTitle = "WRANNE Loading...",
+    LoadingSubtitle = "by WranneScripts",
+    ConfigurationSaving = { Enabled = true, FolderName = nil, FileName = "WRANNEConfig" },
+    Discord = { Enabled = false },
+    KeySystem = false
+})
+
+local MainTab = Window:CreateTab("Main", 4483362458)
+
+MainTab:CreateToggle({
+    Name = "ESP Toggle",
+    CurrentValue = false,
+    Callback = function(v)
+        espEnabled = v
+        updateESP()
+    end
+})
+
+local VisualsTab = Window:CreateTab("Visuals", 4483362458)
+
+VisualsTab:CreateColorPicker({
+    Name = "ESP Color",
+    Color = espColor,
+    Callback = function(c)
+        espColor = c
+        for _, player in pairs(Players:GetPlayers()) do
+            local char = player.Character
+            if char then
+                local hl = char:FindFirstChild("WRANNE_ESP")
+                if hl then hl.OutlineColor = c end
+            end
+        end
+    end
+})
+
+local AdminTab = Window:CreateTab("Admin", 4483362458)
+
+AdminTab:CreateButton({
+    Name = "Copy Admin Telegram",
+    Callback = function()
+        setclipboard("https://t.me/WranneScripts")
+        Rayfield:Notify({Title = "Copied", Content = "Telegram link copied to clipboard!"})
+    end
+})
+
+print("WRANNE HUB загружен! Нажми Insert для открытия меню")
